@@ -1,135 +1,59 @@
-const express = require('express');
-const fs = require('fs');
-const uuid = require('uuid');
+class Bugs:
+    url: str
 
-const app = express();
-app.use(express.json());
+    def __init__(self, url: str) -> None:
+        self.url = url
 
-const DATA_FILE_PATH = './employees.json';
 
-// Create an index for faster employee lookup using Map
-let employeeIndex = new Map();
+class Dependencies:
+    express: str
+    uuid: str
+    worker_thread: str
 
-function buildEmployeeIndex() {
-    employeeIndex.clear();
-    employeeList.forEach(employee => {
-        employeeIndex.set(employee.employeeId, employee);
-    });
-}
+    def __init__(self, express: str, uuid: str, worker_thread: str) -> None:
+        self.express = express
+        self.uuid = uuid
+        self.worker_thread = worker_thread
 
-let employeeList = loadEmployeesFromFile();
-buildEmployeeIndex();
 
-app.get('/greeting', (req, res) => res.send('Hello world!'));
+class Repository:
+    type: str
+    url: str
 
-app.post('/employee', (req, res) => {
-    const newEmployee = {
-        employeeId: uuid.v4(),
-        name: req.body.name,
-        city: req.body.city
-    };
-    employeeList.push(newEmployee);
-    employeeIndex.set(newEmployee.employeeId, newEmployee);
-    saveEmployeesToFile();
-    res.status(201).json({ employeeId: newEmployee.employeeId });
-});
+    def __init__(self, type: str, url: str) -> None:
+        self.type = type
+        self.url = url
 
-app.get('/employee/:id', (req, res) => {
-    const employee = employeeIndex.get(req.params.id);
-    if (employee) {
-        res.json(employee);
-    } else {
-        res.status(404).json({ message: `Employee with ${req.params.id} was not found` });
-    }
-});
 
-app.put('/employee/:id', (req, res) => {
-    const employee = employeeIndex.get(req.params.id);
-    if (employee) {
-        employee.name = req.body.name;
-        employee.city = req.body.city;
-        saveEmployeesToFile();
-        res.status(201).json(employee);
-    } else {
-        res.status(404).json({ message: `Employee with ${req.params.id} was not found` });
-    }
-});
+class Scripts:
+    start: str
 
-app.delete('/employee/:id', (req, res) => {
-    const employee = employeeIndex.get(req.params.id);
-    if (employee) {
-        const employeeIndexToDelete = employeeList.findIndex(emp => emp.employeeId === req.params.id);
-        employeeList.splice(employeeIndexToDelete, 1);
-        employeeIndex.delete(req.params.id);
-        saveEmployeesToFile();
-        res.json(employee);
-    } else {
-        res.status(404).json({ message: `Employee with ${req.params.id} was not found` });
-    }
-});
+    def __init__(self, start: str) -> None:
+        self.start = start
 
-app.post('/employees/search', (req, res) => {
-    const { fields, condition = 'AND' } = req.body;
 
-    if (!fields || fields.length === 0) {
-        return res.status(400).json({ messages: ["At least one search criteria should be passed."] });
-    }
+class Welcome4:
+    name: str
+    version: str
+    description: str
+    main: str
+    scripts: Scripts
+    repository: Repository
+    author: str
+    license: str
+    bugs: Bugs
+    homepage: str
+    dependencies: Dependencies
 
-    let messages = [];
-
-    fields.forEach((field, index) => {
-        if (!field.fieldName) {
-            messages.push('fieldName must be set.');
-        } else if (!field.eq && !field.neq) {
-            messages.push(`${field.fieldName}: At least one of eq, neq must be set.`);
-        }
-    });
-
-    if (messages.length > 0) {
-        return res.status(400).json({ messages });
-    }
-
-    let results = employeeList.filter(employee => {
-        return fields.every(field => {
-            if (field.eq) return employee[field.fieldName] === field.eq;
-            if (field.neq) return employee[field.fieldName] !== field.neq;
-        });
-    });
-
-    if (condition === 'OR' && fields.length > 1) {
-        results = employeeList.filter(employee => {
-            return fields.some(field => {
-                if (field.eq) return employee[field.fieldName] === field.eq;
-                if (field.neq) return employee[field.fieldName] !== field.neq;
-            });
-        });
-    }
-
-    res.json(results);
-});
-
-app.get('/employees/all', (req, res) => res.json(employeeList));
-
-app.listen(8080, () => console.log(`Server running on port 8080`));
-
-function loadEmployeesFromFile() {
-    try {
-        const data = fs.readFileSync(DATA_FILE_PATH, 'utf8');
-        return JSON.parse(data);
-    } catch (err) {
-        if (err.code === 'ENOENT') {
-            console.log("File not found, creating...");
-            fs.writeFileSync(DATA_FILE_PATH, '[]', 'utf8');
-            return [];
-        } else {
-            console.error('Error reading file:', err);
-            return [];
-        }
-    }
-}
-
-function saveEmployeesToFile() {
-    fs.writeFile(DATA_FILE_PATH, JSON.stringify(employeeList), err => {
-        if (err) console.log("Error writing to file:", err);
-    });
-}
+    def __init__(self, name: str, version: str, description: str, main: str, scripts: Scripts, repository: Repository, author: str, license: str, bugs: Bugs, homepage: str, dependencies: Dependencies) -> None:
+        self.name = name
+        self.version = version
+        self.description = description
+        self.main = main
+        self.scripts = scripts
+        self.repository = repository
+        self.author = author
+        self.license = license
+        self.bugs = bugs
+        self.homepage = homepage
+        self.dependencies = dependencies
